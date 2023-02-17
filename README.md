@@ -19,7 +19,7 @@
     - For state variable dependent plasticity models, one may make a decision on the way to read state variables by running simulation (Sub. pre_strain).
     - The pi-plane described in this bundle is not a real pi-plane but a deviatoric plane. For convenience, lets call it pi-plane.
 
-# Equation for the precision parameter
+# Precision parameter
 $$ \alpha = \sqrt{\frac{\partial \overline{\sigma}}{\partial \mathbf{\sigma}} \mathbin{:} \frac{\partial \overline{\sigma}}{\partial \mathbf{\sigma}}} $$
 
 # Relative error
