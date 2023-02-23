@@ -260,10 +260,10 @@ C     [3.3] RUN SIMULATION
             SIG0=0.D0
             STATEV0=STATEV
             DO N=1,NDATA
-               CALL UMAT(PROPS,STATEV0,SIG0,DSTRAN(N,:),CEP)
                IF(STATEV0(1).GT.0.D0) THEN
                   CALL CORRECTION(ANG2,DFDS0,SN,SIG0,DSTRAN(N,:))
                END IF
+               CALL UMAT(PROPS,STATEV0,SIG0,DSTRAN(N,:),CEP)
             END DO
 C     [3.4] GRADIENT OF YIELD SURFACE
             DFDS1=STATEV0(NDIM0:NDIM0+NTENS-1)
@@ -361,10 +361,10 @@ C     [3.5] RUN SIMULATION
             SIG0=0.D0
             STATEV0=STATEV
             DO N=1,NDATA
-               CALL UMAT(PROPS,STATEV0,SIG0,DSTRAN(N,:),CEP)
                IF(STATEV0(1).GT.0.D0) THEN
                   CALL CORRECTION(ANG2,DFDS0,SN,SIG0,DSTRAN(N,:))
                END IF
+               CALL UMAT(PROPS,STATEV0,SIG0,DSTRAN(N,:),CEP)
             END DO
 C     [3.6] STRESS COORDINATES
             CALL EFF_SIG(STAT_VAR, SN, SIG_BAR)
@@ -391,7 +391,7 @@ C     [4]   CLOSE PMAP DATA
 C-----------------------------------------------------------------------
       CALL CPU_TIME(FINISH)
       WRITE(*,'(A)') '--------------------------------------'
-      WRITE(*,'(2X,A)') 'PMAP COMPLETED!!'
+      WRITE(*,'(2X,A)') 'CMAP COMPLETED!!'
       WRITE(*,'(2X,A)',ADVANCE='NO') 'ELAPSED TIME:'
       WRITE(*,'(2X,F10.4,2X,A)') FINISH-START, 'SECONDS'
       WRITE(*,'(A)') '--------------------------------------'
@@ -408,7 +408,7 @@ C     VALUE=SQRT(DFDS:DFDS)
       DIMENSION STATEV0(NSTATV), SIG0(NTENS), CEP(NTENS,NTENS),
      1          DSTRAN(NDATA,NTENS), DUMMY12(NTENS)
       DIMENSION XMAP_DATA(50), STAT_VAR(NDIM6), PSIG(2), YSIG(2)
-C      DIMENSION STATEV1(NDATA,NSTATV), SIG1(NDATA,NTENS)
+      DIMENSION STATEV1(NDATA,NSTATV), SIG1(NDATA,NTENS)
       CHARACTER :: FILEPATH*128, DEBUGPATH*128
       PARAMETER(PI=DACOS(-1.D0), RADIAN=DATAN(1.D0)/45.D0)
       COMMON /KUMAT/ NPROPS, NSTATV, NTENS, NDATA
@@ -456,10 +456,10 @@ C     [3.5] RUN SIMULATION
             SIG0=0.D0
             STATEV0=STATEV
             DO N=1,NDATA
-               CALL UMAT(PROPS,STATEV0,SIG0,DSTRAN(N,:),CEP)
                IF(STATEV0(1).GT.0.D0) THEN
                   CALL CORRECTION(ANG2,DFDS0,SN,SIG0,DSTRAN(N,:))
                END IF
+               CALL UMAT(PROPS,STATEV0,SIG0,DSTRAN(N,:),CEP)
             END DO
 C     [3.6] STRESS COORDINATES
             CALL EFF_SIG(STAT_VAR, SN, SIG_BAR)
@@ -475,7 +475,8 @@ C     [3.7] WRITE DATA
             XMAP_DATA(7)= STATEV0(1) ! EFFECTIVE STRAIN INCREMENT
             XMAP_DATA(8)= STATEV0(2) ! EFFECTIVE PLASTIC STRAIN
             XMAP_DATA(9)= STATEV0(3) ! EFFECTIVE STRESS
-            CALL WRITE_CSV(1,9,XMAP_DATA,FILEPATH, 1, 2)
+            XMAP_DATA(10)=STATEV0(4) ! FLOW STRESS
+            CALL WRITE_CSV(1,10,XMAP_DATA,FILEPATH, 2, 2)
       END DO
 C     [3.8] VISUALIZE PROGRESS
             PERC=FLOAT(I)/FLOAT(IRANGE1)
@@ -484,7 +485,7 @@ C     [3.8] VISUALIZE PROGRESS
 C-----------------------------------------------------------------------
 C     [4]   CLOSE PMAP DATA
       XMAP_DATA=0.D0
-      CALL WRITE_CSV(1,9,XMAP_DATA,FILEPATH, 1, 3)
+      CALL WRITE_CSV(1,10,XMAP_DATA,FILEPATH, 2, 3)
 C-----------------------------------------------------------------------
       CALL CPU_TIME(FINISH)
       WRITE(*,'(A)') '--------------------------------------'
@@ -538,7 +539,7 @@ C     [1] LOCAL COORDINATE
 C     [2] FIND REFERENCE STRESS STATE
       VAL=MAXVAL(DABS(DUMMY02))
       DO I=1,NTENS
-            IF(DABS(DABS(DUMMY02(I))-VAL).LT.1.D-5) THEN
+            IF(DABS(DABS(DUMMY02(I))-VAL).EQ.0.D0) THEN
                   INDX=I
                   EXIT
             END IF
@@ -560,20 +561,6 @@ C      SIG=SIG0
 
       RETURN
       END SUBROUTINE CORRECTION
-C-----------------------------------------------------------------------
-      SUBROUTINE CORR_PRINCIPAL(ANG,SN,TENS1)
-C     # THIS SUBROUTINE CORRECTS STRESS TENSOR VIA PRICIPAL VALUES.
-C     CORRECTION: TENSOR -> PRINCIPAL TENSOR -> TENSOR
-      IMPLICIT REAL*8(A-H, O-Z)
-      DIMENSION SN(NTENS), TENS1(NTENS)
-      DIMENSION TENS2(3,3), EIG_VAL(3), EIG_VEC(3,3)
-      DIMENSION R(3,3), RT(3,3)
-      COMMON /KUMAT/ NPROPS, NSTATV, NTENS, NDATA
-
-
-
-      RETURN
-      END SUBROUTINE CORR_PRINCIPAL
 C-----------------------------------------------------------------------
       SUBROUTINE INIT_STRESS(BC,HARD_VAR,SIG,STRAN0,EQPLAS,DDSDDE)
 C     # THIS SUBROUTINE OBTAINS THE INITIAL STRESS TENSOR

@@ -13,7 +13,7 @@ import sys
 # DATA_TYPE=6: EFFECTIVE PLASTIC STRAIN INCREMENT
 # DATA_TYPE=7: EFFECTIVE PLASTIC STRAIN
 # DATA_TYPE=8: EFFECTIVE STRESS
-data_type=8
+data_type=6
 #--------------------------------------------------------------------------#
 # OPEN DATA FILES #
 yl_sig=np.loadtxt('OUT\yld_locus.csv', delimiter=',', dtype=np.float64)
@@ -55,7 +55,7 @@ ncmap=10
 nstep=int(ncmap/2+1)
 steps=np.linspace(min_val,max_val,nstep)
 cmap = plt.get_cmap('Blues',ncmap)
-plt.scatter(data[:,4], data[:,5], c=val, cmap=cmap, s=15, vmin=min_val, vmax=max_val)
+plt.scatter(data[:,4], data[:,5], c=val, cmap=cmap, s=10, vmin=min_val, vmax=max_val)
 cb=plt.colorbar(ticks=steps, format='%.0e')
 cb.ax.tick_params(labelsize=25, width=2, direction='in', length=11)
 cb.update_ticks()

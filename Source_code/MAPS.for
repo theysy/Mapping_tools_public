@@ -1,12 +1,3 @@
-C-----------------------------------------------------------------------C
-C     DEVELOPER INFORMATION                                             C
-C                                                                       C
-C     NAME    : SEONGYONG  YOON                                         C
-C     E-MAIL  : s.yoon@mpie.de                                          C
-C     GIT-HUB : https://github.com/theysy                               C
-C     AFFILIATION:                                                      C
-C         Max-Planck-Institut für Eisenforschung GmbH (MPIE)            C
-C-----------------------------------------------------------------------C
       INCLUDE 'LIBRARY\MML_U2SA.FOR'
       INCLUDE 'LIBRARY\LIBRARY.FOR'
 C-----------------------------------------------------------------------
@@ -29,7 +20,7 @@ C     [1]   SIMULATION PARAMETERS
       DT=1.D-2 !TIME INCREMENT
       NDATA=CEILING(1.D0/DT)+1
 C-----------------------------------------------------------------------
-C     [2]   REFERENCE STRESS STATE (OPTIONALLY REQUIRED FOR SUB. PRE-STRAIN)
+C     [2]   REFERENCE STRESS STATE
 C     SR=[S11 S22 S33 S12 S13 S23]
       SR=0.D0
       SR(1)=1.D0
@@ -80,7 +71,7 @@ C     [6]   WRITE YIELD LOCUS AND PI-PLANE
       CALL YLD_SURFACE(STATEV)
 C-----------------------------------------------------------------------
 C     [7]   MAPPING
-C     (1: PRECISION MAP | 2: CONVERGENCE MAP (STRAIN) | 3: DATA MAP)
+C     (1: PRECISION MAP | 2: CONVERGENCE MAP (STRAIN)
       IF(XMAP_PAR .EQ. 1.D0) THEN
             CALL PMAP(PROPS,STATEV,BC,2)
       ELSEIF(XMAP_PAR .EQ. 2.D0) THEN

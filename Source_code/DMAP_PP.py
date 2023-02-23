@@ -13,7 +13,7 @@ import sys
 # DATA_TYPE=6: EFFECTIVE PLASTIC STRAIN INCREMENT
 # DATA_TYPE=7: EFFECTIVE PLASTIC STRAIN
 # DATA_TYPE=8: EFFECTIVE STRESS
-data_type=8
+data_type=6
 #--------------------------------------------------------------------------#
 # SET PLOTTING PARAMETERS #
 print_par=0       # Print the result on csv file. (0: off / 1: on)

@@ -73,12 +73,10 @@ plt.plot(pi_sig[:,0], pi_sig[:,1], 'k', linewidth=2.5)
 val=cmap_data[:,2] # Convergence iteration
 min_val=0
 max_val=np.round(np.max(val),0)
-max_val=8
 if max_val > 10:
       max_val=np.round(np.max(val),-1)
       ncmap=10
-elif max_val< 6:
-      max_val=max_val
+elif max_val< 8:
       ncmap=max_val*2
 else:
       ncmap=max_val
@@ -87,6 +85,9 @@ steps=np.linspace(min_val,max_val,nstep)
 cmap = plt.get_cmap('Blues',ncmap)
 plt.scatter(cmap_fail[:,0], cmap_fail[:,1], c='lightcoral', s=15)
 plt.scatter(cmap_data[:,0], cmap_data[:,1], c=val, cmap=cmap, s=15, vmin=min_val, vmax=max_val)
+props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+textstr='Mean: '+str(np.round(np.mean(val)))
+plt.text(0.5, 1.1, textstr, fontsize=25, bbox=props)
 cb=plt.colorbar(ticks=steps)
 cb.ax.tick_params(labelsize=25, width=2, direction='in', length=11)
 cb.update_ticks()

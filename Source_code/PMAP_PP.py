@@ -13,7 +13,7 @@ import sys
 # DATA_TYPE=6: REFERENCE PRECISION PARAMETER
 # DATA_TYPE=7: PRECISION PARAMETER
 # DATA_TYPE=8: RELATIVE ERROR BETWEEN REFERENCE DATA AND GENERATED DATA
-data_type=7
+data_type=8
 #--------------------------------------------------------------------------#
 # SET PLOTTING PARAMETERS #
 print_par=0       # Print the result on csv file. (0: off / 1: on)
@@ -69,6 +69,10 @@ nstep=int(ncmap/2+1)
 steps=np.linspace(min_val,max_val,nstep)
 cmap = plt.get_cmap('Blues',ncmap)
 plt.scatter(data[:,2], data[:,3], c=val, cmap=cmap, s=15, vmin=min_val, vmax=max_val)
+if data_type==8:
+      props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+      textstr='Max: '+str(np.round(np.max(val),1))+'%'
+      plt.text(0.5, 1.1, textstr, fontsize=25, bbox=props)
 cb=plt.colorbar(ticks=steps)
 cb.ax.tick_params(labelsize=25, width=2, direction='in', length=11)
 cb.update_ticks()
