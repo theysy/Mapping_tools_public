@@ -38,6 +38,9 @@ $$ Error = \frac{\lvert \alpha_{ref} - \alpha \lvert}{\alpha_{ref}} \times 100 \
     3. Python packages: numpy, matplotlib
 
 # How to generate maps
+    1. Define deformation modes using trigonometric functions of which range is 0 to 360 (outlines).
+    2. Roate stress tensors from 0 to 45 with respect to the shear component (z-axis) using the rotation matrix.
+    
 <p align="center"><img src="https://github.com/theysy/Mapping_tools_public/blob/main/Screenshots/MAPPING.png"></p>
 
 # Screenshots
