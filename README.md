@@ -37,27 +37,30 @@ $$ Error = \frac{\lvert \alpha_{ref} - \alpha \lvert}{\alpha_{ref}} \times 100 \
     2. Python3
     3. Python packages: numpy, matplotlib
 
+# How to generate maps
+<p align="center"><img src="https://github.com/theysy/Mapping_tools_public/blob/main/Screenshots/MAPPING.png"></p>
+
 # Screenshots
     1. Convergence maps
-<p align="center"><img src="https://github.com/theysy/Mapping_tools/blob/main/Screenshots/CMAP_PP_CPPM_0.01.png"></p>  
-<p align="center"><img src="https://github.com/theysy/Mapping_tools/blob/main/Screenshots/CMAP_YL_CPPM_0.01.png"></p>  
+<p align="center"><img src="https://github.com/theysy/Mapping_tools_public/blob/main/Screenshots/CMAP_PP_CPPM_0.01.png"></p>  
+<p align="center"><img src="https://github.com/theysy/Mapping_tools_public/blob/main/Screenshots/CMAP_YL_CPPM_0.01.png"></p>  
 
     2. Prevision maps: Precision parameters
-<p align="center"><img src="https://github.com/theysy/Mapping_tools/blob/main/Screenshots/PMAP_PP_CPPM_0.01.png"></p>   
-<p align="center"><img src="https://github.com/theysy/Mapping_tools/blob/main/Screenshots/PMAP_YL_CPPM_0.01.png"></p>
+<p align="center"><img src="https://github.com/theysy/Mapping_tools_public/blob/main/Screenshots/PMAP_PP_CPPM_0.01.png"></p>   
+<p align="center"><img src="https://github.com/theysy/Mapping_tools_public/blob/main/Screenshots/PMAP_YL_CPPM_0.01.png"></p>
 
     3. Precision maps: Relative error (%)
-<p align="center"><img src="https://github.com/theysy/Mapping_tools/blob/main/Screenshots/EMAP_PP_CPPM_0.01.png"></p>   
-<p align="center"><img src="https://github.com/theysy/Mapping_tools/blob/main/Screenshots/EMAP_YL_CPPM_0.01.png"></p>   
+<p align="center"><img src="https://github.com/theysy/Mapping_tools_public/blob/main/Screenshots/EMAP_PP_CPPM_0.01.png"></p>   
+<p align="center"><img src="https://github.com/theysy/Mapping_tools_public/blob/main/Screenshots/EMAP_YL_CPPM_0.01.png"></p>   
 
     4. Data maps: Effective plastic strain increment
-<p align="center"><img src="https://github.com/theysy/Mapping_tools/blob/main/Screenshots/DMAP1_PP_CPPM_0.01.png"></p>   
-<p align="center"><img src="https://github.com/theysy/Mapping_tools/blob/main/Screenshots/DMAP1_YL_CPPM_0.01.png"></p>   
+<p align="center"><img src="https://github.com/theysy/Mapping_tools_public/blob/main/Screenshots/DMAP1_PP_CPPM_0.01.png"></p>   
+<p align="center"><img src="https://github.com/theysy/Mapping_tools_public/blob/main/Screenshots/DMAP1_YL_CPPM_0.01.png"></p>   
 
     5. Data maps: Effective plastic strain
-<p align="center"><img src="https://github.com/theysy/Mapping_tools/blob/main/Screenshots/DMAP2_PP_CPPM_0.01.png"></p>   
-<p align="center"><img src="https://github.com/theysy/Mapping_tools/blob/main/Screenshots/DMAP2_YL_CPPM_0.01.png"></p>   
+<p align="center"><img src="https://github.com/theysy/Mapping_tools_public/blob/main/Screenshots/DMAP2_PP_CPPM_0.01.png"></p>   
+<p align="center"><img src="https://github.com/theysy/Mapping_tools_public/blob/main/Screenshots/DMAP2_YL_CPPM_0.01.png"></p>   
 
     6. Data maps: Effective stress
-<p align="center"><img src="https://github.com/theysy/Mapping_tools/blob/main/Screenshots/DMAP3_PP_CPPM_0.01.png"></p>   
-<p align="center"><img src="https://github.com/theysy/Mapping_tools/blob/main/Screenshots/DMAP3_YL_CPPM_0.01.png"></p>   
+<p align="center"><img src="https://github.com/theysy/Mapping_tools_public/blob/main/Screenshots/DMAP3_PP_CPPM_0.01.png"></p>   
+<p align="center"><img src="https://github.com/theysy/Mapping_tools_public/blob/main/Screenshots/DMAP3_YL_CPPM_0.01.png"></p>   
