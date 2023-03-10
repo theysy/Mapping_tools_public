@@ -70,3 +70,12 @@ $$ Error = \frac{\sqrt{\left(\mathbf{\sigma_{ext}}-\mathbf{\sigma}\right)\mathbi
     6. Data maps: Effective stress
 <p align="center"><img src="https://github.com/theysy/Mapping_tools_public/blob/main/Screenshots/DMAP3_PP_CPPM_0.01.png"></p>   
 <p align="center"><img src="https://github.com/theysy/Mapping_tools_public/blob/main/Screenshots/DMAP3_YL_CPPM_0.01.png"></p>   
+
+    7. Iso-error maps: Uniaxial tension
+<p align="center"><img src="https://github.com/theysy/Mapping_tools_public/blob/main/Screenshots/IMAP_UN.png"></p>   
+
+    8. Iso-error maps: Balanced biaxial tension
+<p align="center"><img src="https://github.com/theysy/Mapping_tools_public/blob/main/Screenshots/IMAP_BB.png"></p>   
+
+    9. Iso-error maps: Pure shear
+<p align="center"><img src="https://github.com/theysy/Mapping_tools_public/blob/main/Screenshots/IMAP_PS.png"></p>   
