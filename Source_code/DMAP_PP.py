@@ -58,8 +58,11 @@ r2=r*1.05
 plt.rc('axes', linewidth=2.0)
 plt.axis([-r2,r2,-r2,r2])
 plt.axis('off')
+#--------------------------------------------------------------------------#
 # [2] PLOT PI-PLANE
 plt.plot(pi_sig[:,0], pi_sig[:,1], 'k', linewidth=2.5)
+plt.plot(pi_sig[:,2], pi_sig[:,3], 'k--', linewidth=2.5)
+#--------------------------------------------------------------------------#
 # [3] DATA MAPPING
 val=data[:,data_type]
 min_val=np.min(val)

@@ -51,8 +51,11 @@ plt.axis([-r2,r2,-r2,r2])
 plt.axvline(x=0, color='k', linewidth=2.0)
 plt.axhline(y=0, color='k', linewidth=2.0)
 plt.tick_params(axis='both', direction='in', length=5, pad=6, labelsize=20)
-# [2] Original yield locus
+#--------------------------------------------------------------------------#
+# [2] Yield locus
 plt.plot(yl_sig[:,0], yl_sig[:,1], 'k', linewidth=3.0)
+plt.plot(yl_sig[:,2], yl_sig[:,3], 'k--', linewidth=3.0)
+#--------------------------------------------------------------------------#
 # [3] CONVERGENCE MAPPING
 val=cmap_data[:,2] # Convergence iteration
 min_val=0

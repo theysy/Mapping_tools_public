@@ -13,7 +13,7 @@ import sys
 # DATA_TYPE=6: REFERENCE PRECISION PARAMETER
 # DATA_TYPE=7: PRECISION PARAMETER
 # DATA_TYPE=8: RELATIVE ERROR BETWEEN REFERENCE DATA AND GENERATED DATA
-data_type=8
+data_type=7
 #--------------------------------------------------------------------------#
 # SET PLOTTING PARAMETERS #
 print_par=0       # Print the result on csv file. (0: off / 1: on)
@@ -58,8 +58,11 @@ r2=r*1.05
 plt.rc('axes', linewidth=2.0)
 plt.axis([-r2,r2,-r2,r2])
 plt.axis('off')
+#--------------------------------------------------------------------------#
 # [2] PLOT PI-PLANE
 plt.plot(pi_sig[:,0], pi_sig[:,1], 'k', linewidth=2.5)
+plt.plot(pi_sig[:,2], pi_sig[:,3], 'k--', linewidth=2.5)
+#--------------------------------------------------------------------------#
 # [3] PRECISION MAPPING
 val=data[:,data_type]
 min_val=np.round(np.min(val),1)

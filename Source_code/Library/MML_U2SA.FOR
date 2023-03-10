@@ -239,9 +239,9 @@ C     STATEV(24): H31
 C-----------------------------------------------------------------------
 C     # STATE VARIABLES IN HAH20 & HAH20 MODELS
 C     [1] G-VALUES
-C     STATEV(12) : STRAIN-PATH CHANGE PARAMETER
-C     STATEV(13) : G(1): G-    *
-C     STATEV(14) : G(2): G+    *
+C     STATEV(12): STRAIN-PATH CHANGE PARAMETER
+C     STATEV(13): G(1): G-    *
+C     STATEV(14): G(2): G+    *
 C     STATEV(15): G(3): G3    *
 C     STATEV(16): G(4): G4    *
 C     STATEV(17): G(5): GP    *
@@ -541,11 +541,12 @@ C
 C     [1]     PLASTIC CORRECTOR
       ITER=0
       STATE=0.D0
-      IF(FVAL .GE. 1.D-6) THEN
+      IF(FVAL .GE. 1.D-5) THEN
           STATE=1.D0
           IF(SUA_PAR .GE. 0.D0) THEN  ! ITERATIVE STRESS UPDATE METHOD
             CALL UPDATE_SIG(STAT_VAR,EPLAS,STRESS,DDSDDE,ITER)
           ELSE  ! NON-ITERATIVE STRESS UPDATE METHOD
+            ITER=1
             CALL UPDATE_SIG2(STAT_VAR,DSTRAN,DEPLAS,EPLAS,STRESS,DDSDDE)
           END IF
       END IF
@@ -1759,14 +1760,18 @@ C     #   THIS SUBROUTINE RETURNS FLOW STRESS OF ISOTROPIC HARDENING LAW.
       COMMON /KSIZE/ NDIM1, NDIM2, NDIM3, NDIM4, NDIM5, NDIM6, NDIM7
       COMMON /KIHARD/ P1, P2, P3, P4, P5, P6, P7, P8, P9, P10
 
-      IF(FLOW_PAR.EQ.1.D0) THEN
+      IF(FLOW_PAR.EQ.0.D0) THEN
+C     #   PERFECT PLSATIC LAW #
+          FLOW_SIG=P1
+          DHDE=0.D0
+      ELSEIF(FLOW_PAR.EQ.1.D0) THEN
 C     #   SWIFT HARDENING LAW #
-          FLOW_SIG=P1*(P2+EPLAS)**P3             ! H(¥Å_BAR) = P1*(P2 + ¥Å_BAR)^P3
-          DHDE    =P1*P3*(P2+EPLAS)**(P3-1.D0)    ! ¡ÓH/¡Ó(¥Å_BAR) = P1*P3*(P2 + ¥Å_BAR)^(P3-1)
+          FLOW_SIG=P1*(P2+EPLAS)**P3
+          DHDE    =P1*P3*(P2+EPLAS)**(P3-1.D0)
       ELSEIF(FLOW_PAR.EQ.2.D0) THEN
 C     #   VOCE HARDENING LAW #
-          FLOW_SIG=P1-P2*DEXP(-P3*EPLAS)    ! H(¥Å_BAR) = P1-P2*EXP(-P3*¥Å_BAR)]
-          DHDE    =P2*P3*DEXP(-P3*EPLAS)    ! ¡ÓH/¡Ó(¥Å_BAR) = P2*P3*EXP(-P3*¥Å_BAR)
+          FLOW_SIG=P1-P2*DEXP(-P3*EPLAS)
+          DHDE    =P2*P3*DEXP(-P3*EPLAS)
       ELSEIF(FLOW_PAR.EQ.3.D0) THEN
 C     #   MODIFIED-VOCE HARDENING LAW #
           FLOW_SIG=P1+P2*EPLAS +P3*(1.D0-DEXP(-P4*EPLAS))
@@ -2414,16 +2419,17 @@ C     [1] PREREQUIRED VARIABLES
 C     1.1 THE OTHER COEFFICIENTS
 C     1.1.1   MICROSTRUCTURE DEVIATOR
 C      XKP= XK1/2.D0
-      XKP= 15.D0
+      XKP= 30.D0
       XI_R= 8.D0
 C     1.1.2   BAUSCHINGER RELATED EFFECTS
       XI_B =4.D0
       XI_BP=1.5D0
 C     1.1.3   PERMANENT SOFTENING
       XKS =XK1
-      XI_S =1.D0
+      XI_S =1.5D0
 C     1.1.4   CROSS-LOADIN CONTRACTION
-      XKCP =XKC
+C      XKCP =XKC
+      XKCP= 28.D0
       XI_CP=6.D0
 C     1.1.5   LATENT HARDENING
       XI_LP =0.5D0
@@ -3431,6 +3437,7 @@ C         #   DEV_H
           ELSEIF(FLOOR(HARD_PAR) .EQ. 5.D0) THEN ! HAH20
 C         #   G-VALUES
               STAT_VAR(1:NDIM5)= STATEV(NDIM0+1:NDIM0+NDIM5)
+C
               DO I=1, NDIM4
 C         #   DEV_H
                   STAT_VAR(NDIM5+I)           =STATEV(NDIM0+NDIM5+I)
@@ -4320,11 +4327,10 @@ C
          END DO
 
          IF (AAMAX.EQ.0.D0) THEN
-             WRITE(*, *) '#####################'
-             WRITE(*, *) '## SINGULAR MATRIX ##'
-             WRITE(*, *) '#####################'
-
-             STOP
+C             WRITE(*, *) '#####################'
+C             WRITE(*, *) '## SINGULAR MATRIX ##'
+C             WRITE(*, *) '#####################'
+C             STOP
          END IF
          VV(I)=1.D0/AAMAX
       END DO

@@ -20,10 +20,13 @@
     - The pi-plane described in this bundle is not a real pi-plane but a deviatoric plane. For convenience, lets call it pi-plane.
 
 # Equation for the precision parameter
-$$ \alpha = \sqrt{\frac{\partial \overline{\sigma}}{\partial \mathbf{\sigma}} \mathbin{:} \frac{\partial \overline{\sigma}}{\partial \mathbf{\sigma}}} $$
+$$ \Omega = \sqrt{\frac{\partial \overline{\sigma}}{\partial \mathbf{\sigma}} \mathbin{:} \frac{\partial \overline{\sigma}}{\partial \mathbf{\sigma}}} $$
 
-# Relative error
-$$ Error = \frac{\lvert \alpha_{ref} - \alpha \lvert}{\alpha_{ref}} \times 100 \% $$
+# Relative error for Precision map
+$$ Error = \frac{\lvert \Omega_{ref} - \Omega \lvert}{\Omega_{ref}} \times 100 \% $$
+
+# Relative error for Iso-error map
+$$ Error = \frac{\sqrt{\left(\mathbf{\sigma_{ext}}-\mathbf{\sigma}\right)\mathbin{:}\left(\mathbf{\sigma_{ext}}-\mathbf{\sigma}\right)}}{\sqrt{\mathbf{\sigma_{ext}}\mathbin{:}\mathbf{\sigma_{ext}}}} \times 100 \% $$
 
 # How to use the code
     1. Fill out the user material property file in 'UMAT_PROPS' folder. Ex) PROPS_AA2090_YLD2K.CSV

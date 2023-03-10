@@ -1,143 +1,6 @@
 C-----------------------------------------------------------------------
-      SUBROUTINE YLD_SURFACE(STAT_VAR)
-C     # THIS SUBROUTINE PLOTS YIELD LOCUS (S11, S22).
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION STATEV(NSTATV)
-      DIMENSION STAT_VAR(NDIM6), SIG(NTENS), PSIG(2)
-      DIMENSION YL_SIG(360,2), PI_SIG(360,2)
-      COMMON /KUMAT/ NPROPS, NSTATV, NTENS, NDATA
-      COMMON /KSIZE/ NDIM1, NDIM2, NDIM3, NDIM4, NDIM5, NDIM6, NDIM7
-      CHARACTER :: FILEPATH*128
-      PARAMETER(PI=DACOS(-1.D0), RADIAN=DATAN(1.D0)/45.D0)
-
-C     [2]   READ HARDENING STATE VARIABLE
-      SIG=0.D0
-      CALL READ_STATEV(STATEV, STAT_VAR, SIG) !STATEV -> STAT_VAR
-C     [3]   YIELD LOCUS AND PI-PLANE
-      DO I=0,360
-            ANG=I*RADIAN
-            SIG=0.D0
-            SIG(1)= DCOS(ANG)
-            SIG(2)= DSIN(ANG)
-            CALL EFF_SIG(STAT_VAR, SIG, SIG_BAR)
-            SIG=SIG/SIG_BAR
-            YL_SIG(I,1:2)=SIG(1:2)
-            CALL PI_PLANE(SIG,PSIG)
-            PI_SIG(I,1:2)=PSIG
-      END DO
-      FILEPATH='OUT\YLD_LOCUS.CSV'
-      CALL WRITE_CSV(360,2,YL_SIG,FILEPATH,1,1)
-      FILEPATH='OUT\PI_PLANE.CSV'
-      CALL WRITE_CSV(360,2,PI_SIG,FILEPATH,1,1)
-
-      RETURN
-      END SUBROUTINE YLD_SURFACE
-C-----------------------------------------------------------------------
-      SUBROUTINE PI_PLANE(STRESS, PI_SIG)
-      IMPLICIT REAL*8(A-H, O-Z)
-      DIMENSION STRESS(NDIM3), PI_SIG(2), DEV_SIG(NDIM4)
-      DIMENSION ROTMAT(2,2)
-      PARAMETER(PI=DACOS(-1.D0), RADIAN=DATAN(1.D0)/45.D0)
-      COMMON /KSIZE/ NDIM1, NDIM2, NDIM3, NDIM4, NDIM5, NDIM6, NDIM7
-
-C      PI_SIG(1)= 2.D0*STRESS(1)/DSQRT(6.D0)-STRESS(2)/DSQRT(6.D0)
-C      PI_SIG(2)= STRESS(2)/DSQRT(2.D0)
-      CALL DEVIATORIC(STRESS, DEV_SIG)
-
-      PI_SIG(1)= 2.D0*DEV_SIG(1)/DSQRT(6.D0)-DEV_SIG(2)/DSQRT(6.D0)
-     1          -DEV_SIG(3)/DSQRT(6.D0)
-      PI_SIG(2)= DEV_SIG(2)/DSQRT(2.D0)-DEV_SIG(3)/DSQRT(2.D0)
-
-C
-      RETURN
-      END SUBROUTINE PI_PLANE
-C-----------------------------------------------------------------------
-      SUBROUTINE WRITE_CSV(NSIZE1,NSIZE2,XDATA,FILEPATH, IOPT1, IOPT2)
-C     # THIS SUBROUTINE WRITE CODE RESULTS IN CSV FORMAT.
-C
-C     IOPT1=0: FREE FORMAT
-C     IOPT1=1: NORMAL FORMAT     : 0.0001
-C     IOPT1=2: ENGINEERING FORMAT: 1.0000E-5
-C
-C     IOPT2=1: CLOSE FILE AFTER WRITING CSV
-C     IOPT2=2: KEEP FILE OPEN AFTER WRITING CSV
-C     IOPT2=3: CLOSE FILE IMMEDIATELY
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION XDATA(NSIZE1,NSIZE2)
-      CHARACTER :: FILEPATH*128
-
-101   FORMAT(1X,F8.4,',')
-102   FORMAT(1X,F8.4/)
-103   FORMAT(1X,F8.4)
-C
-201   FORMAT(1X,ES12.4,',')
-202   FORMAT(1X,ES12.4/)
-203   FORMAT(1X,ES12.4)
-
-C     [1]   OPEN CSV FILE
-      OPEN(999, FILE=TRIM(FILEPATH), STATUS='UNKNOWN')
-      IF(IOPT2.EQ.3) THEN
-            CLOSE(999)
-            RETURN
-      END IF
-C-----------------------------------------------------------------------
-C     [2]   WRITE CSV FILE
-      IF(IOPT1.EQ.1) THEN
-      IF(NSIZE1.GT.1) THEN
-            DO I=1,NSIZE1
-            DO J=1,NSIZE2
-                  IF(J.LT.NSIZE2) THEN
-                        WRITE(999, 101, ADVANCE='NO') XDATA(I,J)
-                  ELSEIF(J.EQ.NSIZE2) THEN
-                        WRITE(999, 102, ADVANCE='NO') XDATA(I,J)
-                  END IF
-            END DO
-            END DO
-      ELSEIF(NSIZE1.EQ.1) THEN
-            DO I=1,NSIZE1
-            DO J=1,NSIZE2
-                  IF(J.LT.NSIZE2) THEN
-                        WRITE(999, 101, ADVANCE='NO') XDATA(I,J)
-                  ELSEIF(J.EQ.NSIZE2) THEN
-                        WRITE(999, 103, ADVANCE='NO') XDATA(I,J)
-                  END IF
-            END DO
-            END DO
-      END IF
-C-----------------------------------------------------------------------
-      ELSEIF(IOPT1.EQ.2) THEN
-      IF(NSIZE1.GT.1) THEN
-            DO I=1,NSIZE1
-            DO J=1,NSIZE2
-                  IF(J.LT.NSIZE2) THEN
-                        WRITE(999, 201, ADVANCE='NO') XDATA(I,J)
-                  ELSEIF(J.EQ.NSIZE2) THEN
-                        WRITE(999, 202, ADVANCE='NO') XDATA(I,J)
-                  END IF
-            END DO
-            END DO
-      ELSEIF(NSIZE1.EQ.1) THEN
-            DO I=1,NSIZE1
-            DO J=1,NSIZE2
-                  IF(J.LT.NSIZE2) THEN
-                        WRITE(999, 201, ADVANCE='NO') XDATA(I,J)
-                  ELSEIF(J.EQ.NSIZE2) THEN
-                        WRITE(999, 203, ADVANCE='NO') XDATA(I,J)
-                  END IF
-            END DO
-            END DO
-      END IF
-      END IF
-C-----------------------------------------------------------------------
-C     [3]   CLOSE CSV FILE
-      IF(IOPT2.EQ.1) CLOSE(999)
-
-      RETURN
-      END SUBROUTINE WRITE_CSV
-C-----------------------------------------------------------------------
-      SUBROUTINE PRE_STRAIN(ANG,BC,DT,SN,PROPS,STATEV)
-C     # THIS SUBROUTINE SIMULATE PRE-STRAIN IMPOSED UNDER AN UNIAXIAL TENSION.
-C     # THE SIMULATION IS COMPOSED OF 1. PRE-STRAIN AND 2. UNLOADING
+      SUBROUTINE STAND_ALONE(ANG,BC,SN,PROPS,STATEV,IOPT)
+C     # THIS SUBROUTINE LAUNCHES A STAND-ALONE SIMULATION FOR GIVEN PARAMETERS.
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION SN(NTENS), PROPS(NPROPS), STATEV(NSTATV)
       DIMENSION DSTRAN(NDATA,NTENS), DFDS(NTENS), STRESS(NTENS)
@@ -145,23 +8,22 @@ C     # THE SIMULATION IS COMPOSED OF 1. PRE-STRAIN AND 2. UNLOADING
       COMMON /KUMAT/ NPROPS, NSTATV, NTENS, NDATA
 
 C     [1] GENERATE STRAIN INRCREMENT
-      CALL STRAIN_INC(BC,PROPS,SN,DSTRAN,2)
+      CALL STRAIN_INC(BC,PROPS,SN,DSTRAN,IOPT)
 C     [4] REFERENCE STRESS STATE
       CALL ROTMAT(ANG,SN,1.D0)
       CALL UMAT(PROPS,STATEV,SN,DSTRAN(1,:),CE)
-      DFDS=STATEV(59:58+NTENS)
+      DFDS=STATEV(6:5+NTENS)
 C     [5] RUN SIMULATION
       STRESS=0.D0
       STATEV=0.D0
-      STRAN=0.D0
       DO N=1,NDATA
-          IF(STATEV(4).NE.0.D0) THEN
-              DSTRAN(N,:)=MAXVAL(DSTRAN(N,:))*DFDS
+          IF(STATEV(1).GT.0.D0) THEN
+            CALL CORRECTION(ANG,DFDS,SN,STRESS,DSTRAN(N,:))
           END IF
           CALL UMAT(PROPS,STATEV,STRESS,DSTRAN(N,:),CEP)
       END DO
       RETURN
-      END SUBROUTINE PRE_STRAIN
+      END SUBROUTINE STAND_ALONE
 C-----------------------------------------------------------------------
       SUBROUTINE STRAIN_INC(BC,PROPS,SN,DSTRAN,IOPT)
 C     # THIS SUBROUTINE DEFINES THE STRAIN INCREMENT BASED ON
@@ -175,7 +37,7 @@ C           =2: BC=TRUE STRAIN
       DIMENSION AUX(NTENS)
       COMMON /KUMAT/ NPROPS, NSTATV, NTENS, NDATA
 C     [1]   TOTAL STRAIN
-      CALL LINSPACE(0.D0,BC,NDATA,STRAN0)
+      CALL LINSPACE(0.D0,BC,SIZE(DSTRAN,1),STRAN0)
       IF(IOPT .EQ. 1) THEN
             STRAN(:,1)=LOG(1+STRAN0)
       ELSEIF(IOPT .EQ. 2) THEN
@@ -232,8 +94,7 @@ C     [2]   DATA SIZE
 C     [3]   INITIALIZATION
       INDX=0; NDIM0=6
       XMAP_DATA=0.D0
-C     [4]
-      SIG0=0.D0
+C     [4]   READ STATE VARIABLE
       CALL READ_STATEV(STATEV, STAT_VAR, SIG0) !STATEV -> STAT_VAR
 C-----------------------------------------------------------------------
 C     [3]   GENERATE DATA
@@ -249,7 +110,7 @@ C     [3.2] REFERENCE STRESS STATE
             CALL ROTMAT(ANG2,SN,1.D0)
 C     [3.3] REFERENCE GRADIENT
             DUMMY1=0.D0
-            STATEV0=0.D0
+            STATEV0=STATEV
             CALL UMAT(PROPS,STATEV0,SN,DUMMY1,CEP)
             DFDS0=STATEV0(NDIM0:NDIM0+NTENS-1)
 C     [3.3] REFERENCE PRECISION VALUE
@@ -260,7 +121,7 @@ C     [3.3] RUN SIMULATION
             SIG0=0.D0
             STATEV0=STATEV
             DO N=1,NDATA
-               IF(STATEV0(1).GT.0.D0) THEN
+               IF(STATEV0(5).GT.0.D0) THEN
                   CALL CORRECTION(ANG2,DFDS0,SN,SIG0,DSTRAN(N,:))
                END IF
                CALL UMAT(PROPS,STATEV0,SIG0,DSTRAN(N,:),CEP)
@@ -335,7 +196,7 @@ C     [2]   DATA SIZE
 C     [3]   INITIALIZATION
       INDX=0; NDIM0=6
       XMAP_DATA=0.D0
-C     [4]
+C     [4]   READ STATE VARIABLE
       SIG0=0.D0
       CALL READ_STATEV(STATEV, STAT_VAR, SIG0) !STATEV -> STAT_VAR
 C-----------------------------------------------------------------------
@@ -352,7 +213,7 @@ C     [3.2] REFERENCE STRESS STATE
             CALL ROTMAT(ANG2,SN,1.D0)
 C     [3.3] REFERENCE GRADIENT
             DUMMY1=0.D0
-            STATEV0=0.D0
+            STATEV0=STATEV
             CALL UMAT(PROPS,STATEV0,SN,DUMMY1,CEP)
             DFDS0=STATEV0(NDIM0:NDIM0+NTENS-1)
 C     [3.4] STRAIN INCREMENT
@@ -361,7 +222,7 @@ C     [3.5] RUN SIMULATION
             SIG0=0.D0
             STATEV0=STATEV
             DO N=1,NDATA
-               IF(STATEV0(1).GT.0.D0) THEN
+               IF(STATEV0(5).GT.0.D0) THEN
                   CALL CORRECTION(ANG2,DFDS0,SN,SIG0,DSTRAN(N,:))
                END IF
                CALL UMAT(PROPS,STATEV0,SIG0,DSTRAN(N,:),CEP)
@@ -413,7 +274,7 @@ C     VALUE=SQRT(DFDS:DFDS)
       PARAMETER(PI=DACOS(-1.D0), RADIAN=DATAN(1.D0)/45.D0)
       COMMON /KUMAT/ NPROPS, NSTATV, NTENS, NDATA
       COMMON /KSIZE/ NDIM1, NDIM2, NDIM3, NDIM4, NDIM5, NDIM6, NDIM7
-
+C-----------------------------------------------------------------------
       CALL CPU_TIME(START)
 C     [1]   RESULT FILE NAME
       FILEPATH='OUT\DMAP.CSV'
@@ -430,7 +291,7 @@ C     [2]   DATA SIZE
 C     [3]   INITIALIZATION
       INDX=0; NDIM0=6
       XDATA=0.D0
-C     [4]
+C     [4]   READ STATE VARIABLE
       SIG0=0.D0
       CALL READ_STATEV(STATEV, STAT_VAR, SIG0) !STATEV -> STAT_VAR
 C-----------------------------------------------------------------------
@@ -447,7 +308,7 @@ C     [3.2] REFERENCE STRESS STATE
             CALL ROTMAT(ANG2,SN,1.D0)
 C     [3.3] REFERENCE GRADIENT
             DUMMY1=0.D0
-            STATEV0=0.D0
+            STATEV0=STATEV
             CALL UMAT(PROPS,STATEV0,SN,DUMMY1,CEP)
             DFDS0=STATEV0(NDIM0:NDIM0+NTENS-1)
 C     [3.4] STRAIN INCREMENT
@@ -496,6 +357,148 @@ C-----------------------------------------------------------------------
 C-----------------------------------------------------------------------
       RETURN
       END SUBROUTINE DMAP
+C-----------------------------------------------------------------------
+      SUBROUTINE IMAP(PROPS, STATEV, BC, IOPT)
+C     # THIS SUBROUTINE GENERATES THE ISO-ERROR MAP
+      IMPLICIT REAL*8(A-H, O-Z)
+      DIMENSION PROPS(NPROPS), STATEV(NSTATV)
+      DIMENSION DFDS0(NTENS), DFDS1(NTENS), SN(NTENS), DUMMY1(NTENS)
+      DIMENSION STATEV0(NSTATV), SIG0(NTENS), CEP(NTENS,NTENS),
+     1          DSTRAN(NDATA,NTENS), DUMMY12(NTENS)
+      DIMENSION XMAP_DATA(50), STAT_VAR(NDIM6), PSIG(2), YSIG(2)
+      DIMENSION STATEV1(NDATA,NSTATV), SIG1(NDATA,NTENS)
+      DIMENSION ANG(3), STRAN(3,NTENS), SIG2(3,NTENS), STATEV2(3,NTENS)
+      DIMENSION DDSTRAN(NTENS), ASOL(NTENS), ESOL(NTENS), ERROR(3)
+      DIMENSION ASOL1(NTENS), ASOL2(NTENS), XITER(3)
+      REAL*8, DIMENSION(:), ALLOCATABLE :: FACTOR
+      CHARACTER :: FILEPATH*128, DEBUGPATH*128
+      PARAMETER(PI=DACOS(-1.D0), RADIAN=DATAN(1.D0)/45.D0)
+      COMMON /KUMAT/ NPROPS, NSTATV, NTENS, NDATA
+      COMMON /KSIZE/ NDIM1, NDIM2, NDIM3, NDIM4, NDIM5, NDIM6, NDIM7
+C-----------------------------------------------------------------------
+      CALL CPU_TIME(START)
+C     [1]   RESULT FILE NAME
+      FILEPATH='OUT\IMAP.CSV'
+      DEBUGPATH='DEBUG\DEBUG.CSV'
+C     [2]   DATA SIZE
+      IRANGE=200+1; XINC=10.D0
+      ALLOCATE(FACTOR(IRANGE))
+      IF(NTENS .EQ. 3) THEN
+            NDI=2; NTENS2=NTENS+1
+      ELSEIF(NTENS .EQ. 6) THEN
+            NDI=3; NTENS2=NTENS
+      END IF
+C     [3]   INITIALIZATION
+      INDX=0; NDIM0=6; XDATA=0.D0
+      ERROR=0.D0; STRAN=0.D0; STATEV2=0.D0
+C     [4]   READ STATE VARIABLE
+      SIG0=0.D0
+      CALL READ_STATEV(STATEV, STAT_VAR, SIG0) !STATEV -> STAT_VAR
+C-----------------------------------------------------------------------
+C     [5]   REFERENCE DEFORMATION MODE
+C     [5.1] UNIAXIAL TENSION
+      ANG(1)=0.D0
+C     [5.2] BALANCED BIAXIAL TENSION
+      ANG(2)=45.D0
+C     [5.3] PURE SHEAR
+      ANG(3)=-45.D0
+C-----------------------------------------------------------------------
+C     [6]   STRAIN INCREMENT FACTOR
+      CALL LINSPACE(0.D0,XINC,IRANGE,FACTOR)
+C-----------------------------------------------------------------------
+C     [7]   FIND YIELD STRAIN
+      DO K=1, 3
+C     [7.1] DEGREE -> RADIAN
+            ANG1=ANG(K)*RADIAN
+C     [7.2] REFERENCE STRESS STATE
+            SN=0.D0
+            SN(1)= DCOS(ANG1)
+            SN(2)= DSIN(ANG1)
+C     [7.3] REFERENCE GRADIENT
+            DUMMY1=0.D0
+            STATEV0=STATEV
+            CALL UMAT(PROPS,STATEV0,SN,DUMMY1,CEP)
+            DFDS0=STATEV0(NDIM0:NDIM0+NTENS-1)
+C     [7.4] STRAIN INCREMENT
+            CALL STRAIN_INC(BC,PROPS,SN,DSTRAN,IOPT)
+C     [7.5] SIMULATION
+            SIG0=0.D0; FLAG=0.D0;
+            STATEV0=STATEV; STATEV1=0.D0; SIG1=0.D0;
+            DO N=1,NDATA
+               CALL UMAT(PROPS,STATEV0,SIG0,DSTRAN(N,:),CEP)
+               STRAN(K,:)=STRAN(K,:)+DSTRAN(N,:)
+               STATEV1(N,:)=STATEV0
+               SIG1(N,:)=SIG0
+               IF(STATEV0(5).GT.0.D0) THEN
+                  SIG2(K,:)=SIG1(N,:)
+                  STATEV2(K,:)=STATEV1(N,:)
+                  EXIT
+               END IF
+            END DO
+      END DO
+C-----------------------------------------------------------------------
+C     [8]   FIND APPROXIMATED AND EXACT SOLUTIONS
+      DO I=1, IRANGE
+      DO J=1, IRANGE
+      DO K=1, 3
+C     [8.1] APPROXIMATED SOLUTION
+            DUMMY1=0.D0
+            DUMMY1(1)=STRAN(K,1)*FACTOR(I)
+            DUMMY1(2)=STRAN(K,2)*FACTOR(J)
+            SIG0=SIG2(K,:)
+            STATEV0=STATEV2(K,:)
+            CALL UMAT(PROPS,STATEV0,SIG0,DUMMY1,CEP)
+            ASOL=SIG0
+C     [8.2] EXACT SOLUTION: SUB-INCREMENTATION
+C            INCSUB=200
+            TARGET_INC=1.D-1
+            FACTOR_MAX=MAX(FACTOR(I),FACTOR(J))
+            INCSUB=NINT(FACTOR_MAX/TARGET_INC)
+            IF(INCSUB.LE.0) INCSUB=1
+            DDSTRAN=0.D0
+            SIG0=SIG2(K,:)
+            STATEV0=STATEV2(K,:)
+            DO L=1, INCSUB
+                  DDSTRAN=DUMMY1/FLOAT(INCSUB)
+                  CALL UMAT(PROPS,STATEV0,SIG0,DDSTRAN,CEP)
+            END DO
+            ESOL=SIG0
+C     [8.3] ERROR CALCULATION
+            CALL DOUBLE_DOT(ESOL-ASOL,ESOL-ASOL,NTENS,XVAL1)
+            CALL DOUBLE_DOT(ESOL,ESOL,NTENS,XVAL2)
+            ERROR(K)=SQRT(XVAL1)/SQRT(XVAL2)*100.D0
+            XITER(K)=STATEV0(5)
+      END DO ! K-LOOP
+C     [8.4] WRITE DATA
+            XMAP_DATA(1)=FACTOR(I)
+            XMAP_DATA(2)=FACTOR(J)
+            XMAP_DATA(3)=ERROR(1)
+            XMAP_DATA(4)=ERROR(2)
+            XMAP_DATA(5)=ERROR(3)
+            XMAP_DATA(6)=XITER(1)
+            XMAP_DATA(7)=XITER(2)
+            XMAP_DATA(8)=XITER(3)
+            CALL WRITE_CSV(1,8,XMAP_DATA,FILEPATH, 2, 2)
+      END DO ! J-LOOP
+C     [8.5] VISUALIZE PROGRESS
+            PERC=REAL(I,8)/REAL(IRANGE-1,8)
+            CALL PROGRESS(PERC,5)
+      END DO
+C-----------------------------------------------------------------------
+C     [9]   CLOSE IMAP DATA
+      XMAP_DATA=0.D0
+      CALL WRITE_CSV(1,8,XMAP_DATA,FILEPATH, 2, 3)
+C-----------------------------------------------------------------------
+      CALL CPU_TIME(FINISH)
+      WRITE(*,'(A)') '--------------------------------------'
+      WRITE(*,'(2X,A)') 'IMAP COMPLETED!!'
+      WRITE(*,'(2X,A)',ADVANCE='NO') 'ELAPSED TIME:'
+      WRITE(*,'(2X,F10.4,2X,A)') FINISH-START, 'SECONDS'
+      WRITE(*,'(A)') '--------------------------------------'
+C-----------------------------------------------------------------------
+      DEALLOCATE(FACTOR)
+      RETURN
+      END SUBROUTINE IMAP
 C-----------------------------------------------------------------------
       SUBROUTINE PMAP_VAL(DFDS, XVAL)
 C     # THIS SUBROUTINE CALCULATES THE SEVERITY OF MATREIAL ANISOTROPY.
@@ -557,7 +560,7 @@ C     [4] STRESS CORRECTION
             SIG0(I)=DABS(SIG0(I))*DUMMY02(I)
       END DO
       CALL ROTMAT(ANG,SIG0,1.D0)
-C      SIG=SIG0
+      SIG=SIG0
 
       RETURN
       END SUBROUTINE CORRECTION
@@ -1034,3 +1037,186 @@ C     PRINT THE PROGRESS BAR.
 
       RETURN
       END SUBROUTINE PROGRESS
+C-----------------------------------------------------------------------
+      SUBROUTINE YLD_SURFACE(STAT_VAR)
+C     # THIS SUBROUTINE PLOTS YIELD LOCUS (S11, S22) FOR ISOTROPIC HARDENING.
+      IMPLICIT REAL*8 (A-H,O-Z)
+      DIMENSION STATEV(NSTATV)
+      DIMENSION STAT_VAR(NDIM6), SIG(NTENS), PSIG(2)
+      DIMENSION YL_SIG(360,2), PI_SIG(360,2)
+      COMMON /KUMAT/ NPROPS, NSTATV, NTENS, NDATA
+      COMMON /KSIZE/ NDIM1, NDIM2, NDIM3, NDIM4, NDIM5, NDIM6, NDIM7
+      CHARACTER :: FILEPATH*128
+      PARAMETER(PI=DACOS(-1.D0), RADIAN=DATAN(1.D0)/45.D0)
+
+C     [2]   READ HARDENING STATE VARIABLE
+      SIG=0.D0
+      CALL READ_STATEV(STATEV, STAT_VAR, SIG) !STATEV -> STAT_VAR
+C     [3]   YIELD LOCUS AND PI-PLANE
+      DO I=0,360
+            ANG=I*RADIAN
+            SIG=0.D0
+            SIG(1)= DCOS(ANG)
+            SIG(2)= DSIN(ANG)
+            CALL EFF_SIG(STAT_VAR, SIG, SIG_BAR)
+            SIG=SIG/SIG_BAR
+            YL_SIG(I,1:2)=SIG(1:2)
+            CALL PI_PLANE(SIG,PSIG)
+            PI_SIG(I,1:2)=PSIG
+      END DO
+      FILEPATH='OUT\YLD_LOCUS.CSV'
+      CALL WRITE_CSV(360,2,YL_SIG,FILEPATH,1,1)
+      FILEPATH='OUT\PI_PLANE.CSV'
+      CALL WRITE_CSV(360,2,PI_SIG,FILEPATH,1,1)
+
+      RETURN
+      END SUBROUTINE YLD_SURFACE
+C-----------------------------------------------------------------------
+      SUBROUTINE YLD_SURFACE2(STATEV)
+C     # THIS SUBROUTINE PLOTS YIELD LOCUS (S11, S22) FOR ANISOTROPIC HARDENING.
+      IMPLICIT REAL*8 (A-H,O-Z)
+      DIMENSION STATEV(NSTATV)
+      DIMENSION STAT_VAR(NDIM6), SIG(NDIM3),ALPHA(NDIM3),DEV_SIG(NDIM4)
+      DIMENSION PSIG(2), YL_SIG(360,4), PI_SIG(360,4)
+      COMMON /KUMAT/ NPROPS, NSTATV, NTENS, NDATA
+      COMMON /KOPTION/ HARD_PAR, YLD_PAR, FLOW_PAR, SUA_PAR, GRAD_PAR
+      COMMON /KSIZE/ NDIM1, NDIM2, NDIM3, NDIM4, NDIM5, NDIM6, NDIM7
+      CHARACTER :: FILEPATH*128
+      PARAMETER(PI=DACOS(-1.D0), RADIAN=DATAN(1.D0)/45.D0)
+
+C     [2]   READ HARDENING STATE VARIABLE
+      SIG=0.D0
+      CALL READ_STATEV(STATEV, STAT_VAR, SIG) !STATEV -> STAT_VAR
+      IF(HARD_PAR.EQ.1.D0 .OR. HARD_PAR.EQ.2.D0) THEN ! KINEMATIC HARDENING
+            ALPHA=STAT_VAR(1:NDIM3)
+            CALL EFF_SIG(STAT_VAR, ALPHA, SIG_BAR2)
+      ELSE
+            ALPHA=0.D0
+            SIG_BAR2=1.D0
+      END IF
+C     [3]   YIELD LOCUS AND PI-PLANE
+      DO I=0,360
+            ANG=I*RADIAN
+            SIG=0.D0
+            SIG(1)= DCOS(ANG)
+            SIG(2)= DSIN(ANG)
+C     [3.1] CHANGED YIELD SURFACE
+            CALL EFF_SIG(STAT_VAR, SIG, SIG_BAR)
+            YL_SIG(I,1:2)=SIG/SIG_BAR+0.25D0*ALPHA/SIG_BAR2
+            CALL PI_PLANE(SIG/SIG_BAR+0.25D0*ALPHA/SIG_BAR2,PSIG)
+            PI_SIG(I,1:2)=PSIG
+C     [3.2] COMPLETE YIELD SURFACE
+            CALL YLD(SIG, DEV_SIG, SIG_BAR, 1)
+            YL_SIG(I,3:4)=SIG/SIG_BAR
+            CALL PI_PLANE(SIG/SIG_BAR,PSIG)
+            PI_SIG(I,3:4)=PSIG
+      END DO
+      FILEPATH='OUT\YLD_LOCUS.CSV'
+      CALL WRITE_CSV(360,4,YL_SIG,FILEPATH,1,1)
+      FILEPATH='OUT\PI_PLANE.CSV'
+      CALL WRITE_CSV(360,4,PI_SIG,FILEPATH,1,1)
+
+      RETURN
+      END SUBROUTINE YLD_SURFACE2
+C-----------------------------------------------------------------------
+      SUBROUTINE PI_PLANE(STRESS, PI_SIG)
+      IMPLICIT REAL*8(A-H, O-Z)
+      DIMENSION STRESS(NDIM3), PI_SIG(2), DEV_SIG(NDIM4)
+      DIMENSION ROTMAT(2,2)
+      PARAMETER(PI=DACOS(-1.D0), RADIAN=DATAN(1.D0)/45.D0)
+      COMMON /KSIZE/ NDIM1, NDIM2, NDIM3, NDIM4, NDIM5, NDIM6, NDIM7
+
+C      PI_SIG(1)= 2.D0*STRESS(1)/DSQRT(6.D0)-STRESS(2)/DSQRT(6.D0)
+C      PI_SIG(2)= STRESS(2)/DSQRT(2.D0)
+      CALL DEVIATORIC(STRESS, DEV_SIG)
+
+      PI_SIG(1)= 2.D0*DEV_SIG(1)/DSQRT(6.D0)-DEV_SIG(2)/DSQRT(6.D0)
+     1          -DEV_SIG(3)/DSQRT(6.D0)
+      PI_SIG(2)= DEV_SIG(2)/DSQRT(2.D0)-DEV_SIG(3)/DSQRT(2.D0)
+
+C
+      RETURN
+      END SUBROUTINE PI_PLANE
+C-----------------------------------------------------------------------
+      SUBROUTINE WRITE_CSV(NSIZE1,NSIZE2,XDATA,FILEPATH, IOPT1, IOPT2)
+C     # THIS SUBROUTINE WRITE CODE RESULTS IN CSV FORMAT.
+C
+C     IOPT1=0: FREE FORMAT
+C     IOPT1=1: NORMAL FORMAT     : 0.0001
+C     IOPT1=2: ENGINEERING FORMAT: 1.0000E-5
+C
+C     IOPT2=1: CLOSE FILE AFTER WRITING CSV
+C     IOPT2=2: KEEP FILE OPEN AFTER WRITING CSV
+C     IOPT2=3: CLOSE FILE IMMEDIATELY
+      IMPLICIT REAL*8 (A-H,O-Z)
+      DIMENSION XDATA(NSIZE1,NSIZE2)
+      CHARACTER :: FILEPATH*128
+
+101   FORMAT(1X,F8.4,',')
+102   FORMAT(1X,F8.4/)
+103   FORMAT(1X,F8.4)
+C
+201   FORMAT(1X,ES12.4,',')
+202   FORMAT(1X,ES12.4/)
+203   FORMAT(1X,ES12.4)
+
+C     [1]   OPEN CSV FILE
+      OPEN(999, FILE=TRIM(FILEPATH), STATUS='UNKNOWN')
+      IF(IOPT2.EQ.3) THEN
+            CLOSE(999)
+            RETURN
+      END IF
+C-----------------------------------------------------------------------
+C     [2]   WRITE CSV FILE
+      IF(IOPT1.EQ.1) THEN
+      IF(NSIZE1.GT.1) THEN
+            DO I=1,NSIZE1
+            DO J=1,NSIZE2
+                  IF(J.LT.NSIZE2) THEN
+                        WRITE(999, 101, ADVANCE='NO') XDATA(I,J)
+                  ELSEIF(J.EQ.NSIZE2) THEN
+                        WRITE(999, 102, ADVANCE='NO') XDATA(I,J)
+                  END IF
+            END DO
+            END DO
+      ELSEIF(NSIZE1.EQ.1) THEN
+            DO I=1,NSIZE1
+            DO J=1,NSIZE2
+                  IF(J.LT.NSIZE2) THEN
+                        WRITE(999, 101, ADVANCE='NO') XDATA(I,J)
+                  ELSEIF(J.EQ.NSIZE2) THEN
+                        WRITE(999, 103, ADVANCE='NO') XDATA(I,J)
+                  END IF
+            END DO
+            END DO
+      END IF
+C-----------------------------------------------------------------------
+      ELSEIF(IOPT1.EQ.2) THEN
+      IF(NSIZE1.GT.1) THEN
+            DO I=1,NSIZE1
+            DO J=1,NSIZE2
+                  IF(J.LT.NSIZE2) THEN
+                        WRITE(999, 201, ADVANCE='NO') XDATA(I,J)
+                  ELSEIF(J.EQ.NSIZE2) THEN
+                        WRITE(999, 202, ADVANCE='NO') XDATA(I,J)
+                  END IF
+            END DO
+            END DO
+      ELSEIF(NSIZE1.EQ.1) THEN
+            DO I=1,NSIZE1
+            DO J=1,NSIZE2
+                  IF(J.LT.NSIZE2) THEN
+                        WRITE(999, 201, ADVANCE='NO') XDATA(I,J)
+                  ELSEIF(J.EQ.NSIZE2) THEN
+                        WRITE(999, 203, ADVANCE='NO') XDATA(I,J)
+                  END IF
+            END DO
+            END DO
+      END IF
+      END IF
+C-----------------------------------------------------------------------
+C     [3]   CLOSE CSV FILE
+      IF(IOPT2.EQ.1) CLOSE(999)
+
+      RETURN
+      END SUBROUTINE WRITE_CSV

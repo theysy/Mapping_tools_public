@@ -12,12 +12,16 @@ C
       COMMON /KSIZE/ NDIM1, NDIM2, NDIM3, NDIM4, NDIM5, NDIM6, NDIM7
 
 C-----------------------------------------------------------------------
-      XMAP_PAR=3.D0 ! 1: PRECISION MAP | 2: CONVERGENCE MAP | 3: DATA MAP
-      FILEPROPS='PROPS_AA2090_YLD2K.csv'
+C     1: PRECISION MAP | 2: CONVERGENCE MAP | 3: DATA MAP | 4: ISO-ERROR MAP
+      XMAP_PAR=4.D0
+C      FILEPROPS='PROPS_DP780_YU.csv'
+      FILEPROPS='PROPS_AA2090_VM.csv'
 C-----------------------------------------------------------------------
 C     [1]   SIMULATION PARAMETERS
-      BC=0.1D0 !BOUNDARY CONDITION
-      DT=1.D-2 !TIME INCREMENT
+      BC=DEXP(0.06D0)-1.D0 !BOUNDARY CONDITION
+C      BC=0.01D0
+      DT=1.D-3 !TIME INCREMENT
+      IOPT=1 ! IOPT=1: DISPLAEMENT CONTROL / IOPT=2: TRUE STRAIN CONTROL
       NDATA=CEILING(1.D0/DT)+1
 C-----------------------------------------------------------------------
 C     [2]   REFERENCE STRESS STATE
@@ -65,19 +69,21 @@ C
       CALL UMAT(PROPS, STATEV, SN, DUMMY1, DUMMY2)
 C-----------------------------------------------------------------------
 C     [5]   PRE-STRAIN SIMULATION
-C      CALL PRE_STRAIN(ANG,BC,DT,SN,PROPS,STATEV)
+C      CALL STAND_ALONE(ANG,BC,SN,PROPS,STATEV,IOPT)
 C-----------------------------------------------------------------------
 C     [6]   WRITE YIELD LOCUS AND PI-PLANE
-      CALL YLD_SURFACE(STATEV)
+      CALL YLD_SURFACE2(STATEV)
 C-----------------------------------------------------------------------
 C     [7]   MAPPING
-C     (1: PRECISION MAP | 2: CONVERGENCE MAP (STRAIN)
+C     (1: PRECISION MAP | 2: CONVERGENCE MAP (STRAIN) | 3: DATA MAP | 4: ISO-ERROR MAP
       IF(XMAP_PAR .EQ. 1.D0) THEN
-            CALL PMAP(PROPS,STATEV,BC,2)
+            CALL PMAP(PROPS,STATEV,BC,IOPT)
       ELSEIF(XMAP_PAR .EQ. 2.D0) THEN
-            CALL CMAP(PROPS,STATEV,BC,2)
+            CALL CMAP(PROPS,STATEV,BC,IOPT)
       ELSEIF(XMAP_PAR .EQ. 3.D0) THEN
-            CALL DMAP(PROPS,STATEV,BC,2)
+            CALL DMAP(PROPS,STATEV,BC,IOPT)
+      ELSEIF(XMAP_PAR .EQ. 4.D0) THEN
+            CALL IMAP(PROPS,STATEV,BC,IOPT)
       END IF
 C
 C-----------------------------------------------------------------------
