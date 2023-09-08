@@ -19,12 +19,12 @@ cmap_data=np.zeros([ang1*ang2,3])
 cmap_fail=np.zeros([ang1*ang2,3])
 for indx in range(ang1*ang2):
       if data[indx,6] == 200:
-            cmap_fail[indx,0]=data[indx,4];
-            cmap_fail[indx,1]=data[indx,5];
+            cmap_fail[indx,0]=data[indx,2];
+            cmap_fail[indx,1]=data[indx,3];
             cmap_fail[indx,2]=data[indx,6];
       else:
-            cmap_data[indx,0]=data[indx,4];
-            cmap_data[indx,1]=data[indx,5];
+            cmap_data[indx,0]=data[indx,2];
+            cmap_data[indx,1]=data[indx,3];
             cmap_data[indx,2]=data[indx,6];
 #--------------------------------------------------------------------------#
 range1=max(data[:,0])-min(data[:,0])
@@ -53,8 +53,8 @@ plt.axhline(y=0, color='k', linewidth=2.0)
 plt.tick_params(axis='both', direction='in', length=5, pad=6, labelsize=20)
 #--------------------------------------------------------------------------#
 # [2] Yield locus
-plt.plot(yl_sig[:,0], yl_sig[:,1], 'k', linewidth=3.0)
-plt.plot(yl_sig[:,2], yl_sig[:,3], 'k--', linewidth=3.0)
+plt.plot(yl_sig[:,0], yl_sig[:,1], 'k--', linewidth=2.5)# ORIGINAL YIELD LOCUS
+plt.plot(yl_sig[:,2], yl_sig[:,3], 'k', linewidth=2.5)  # CURRENT YIELD LOCUS
 #--------------------------------------------------------------------------#
 # [3] CONVERGENCE MAPPING
 val=cmap_data[:,2] # Convergence iteration

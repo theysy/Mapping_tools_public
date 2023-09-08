@@ -13,7 +13,6 @@ import sys
 r=1.2             # RADIUS OF AXIS
 # OPEN DATA FILES #
 pi_sig=np.loadtxt('OUT\pi_plane.csv', delimiter=',', dtype=np.float64)
-data = np.loadtxt('OUT\CMAP.csv', delimiter=',', dtype=np.float64)
 #--------------------------------------------------------------------------#
 # [1] PI-PLANE AXES
 pp_axis=np.zeros([3,2])
@@ -43,8 +42,8 @@ plt.axis([-r2,r2,-r2,r2])
 plt.axis('off')
 #--------------------------------------------------------------------------#
 # [2] PLOT PI-PLANE
-plt.plot(pi_sig[:,2], pi_sig[:,3], 'k--', linewidth=2.5)
-plt.plot(pi_sig[:,0], pi_sig[:,1], 'k', linewidth=2.5)
+plt.plot(pi_sig[:,0], pi_sig[:,1], 'k--', linewidth=2.5)
+plt.plot(pi_sig[:,2], pi_sig[:,3], 'k', linewidth=2.5)
 #--------------------------------------------------------------------------#
 plt.show()
 #--------------------------------------------------------------------------#

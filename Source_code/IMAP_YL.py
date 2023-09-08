@@ -10,58 +10,50 @@ import csv
 import sys
 #--------------------------------------------------------------------------#
 # CHOOSE DATA TYPE
-# DATA_TYPE=6: EFFECTIVE PLASTIC STRAIN INCREMENT
-# DATA_TYPE=7: EFFECTIVE PLASTIC STRAIN
-# DATA_TYPE=8: EFFECTIVE STRESS
-data_type=8
+# DATA_TYPE=2: ERROR1: ANGLE BETWEEN STRESS DIRECTIONS
+# DATA_TYPE=3: ERROR2: RELATIVE ERROR OF EFFECTIVE STRESS
+# DATA_TYPE=4: MODE3: PURE SHEAR
+data_type=7
 #--------------------------------------------------------------------------#
+# SET PLOTTING PARAMETERS #
 # OPEN DATA FILES #
 yl_sig=np.loadtxt('OUT\yld_locus.csv', delimiter=',', dtype=np.float64)
-data = np.loadtxt('OUT\DMAP.csv', delimiter=',', dtype=np.float64)
-range1=max(data[:,0])-min(data[:,0])
-range2=max(data[:,1])-min(data[:,1])
-interval1=data[int(range2+1),0]-data[0,0]
-interval2=data[1,1]-data[0,1]
-print(interval1,interval2)
-ndata=(interval1*range1+1)*(interval1*range2+1)
+data = np.loadtxt('OUT\IMAP.csv', delimiter=',', dtype=np.float64)
+
+max_indx=np.max(data[:,0])
+min_indx=np.min(data[:,0])
+ndata=int(np.sqrt(np.size(data[:,0])))
+delta=data[1,1]-data[0,1]
 #--------------------------------------------------------------------------#
-# Yield surface template
 r=1.5
-th=0*np.arccos(-1)/180
-yl_axis=np.zeros([2,2])
-x=r/np.sqrt(1+np.tan(th)**2)
-yl_axis[0,0]=r/np.sqrt(1+np.tan(th)**2)
-yl_axis[0,1]=np.tan(th)*yl_axis[0,0]
-th=90*np.arccos(-1)/180
-yl_axis[1,0]=r/np.sqrt(1+np.tan(th)**2)
-yl_axis[1,1]=np.tan(th)*yl_axis[1,0]
-r2=r
 plt.figure(1, figsize=(9,8))
 plt.rc('axes', linewidth=2.0)
 plt.grid(which='major', alpha=0.5)
-plt.axis([-r2,r2,-r2,r2])
-plt.axvline(x=0, color='k', linewidth=2.0)
-plt.axhline(y=0, color='k', linewidth=2.0)
-plt.tick_params(axis='both', direction='in', length=5, pad=6, labelsize=20)
+plt.axvline(x=0, color='k', linewidth=1.5)
+plt.axhline(y=0, color='k', linewidth=1.5)
+#plt.axis([min_indx,max_indx,min_indx,max_indx])
+plt.axis([-r,r,-r,r])
+plt.tick_params(axis='both', direction='in', length=10, width=2, pad=6, labelsize=20)
+plt.locator_params(axis='x', nbins=7)
+plt.locator_params(axis='y', nbins=7)
 #--------------------------------------------------------------------------#
 # Yield locus
 plt.plot(yl_sig[:,0], yl_sig[:,1], 'k--', linewidth=2.5)# ORIGINAL YIELD LOCUS
 plt.plot(yl_sig[:,2], yl_sig[:,3], 'k', linewidth=2.5)  # CURRENT YIELD LOCUS
 #--------------------------------------------------------------------------#
-# PRECISION MAPPING
 val=data[:,data_type]
+#min_val=np.round(np.min(val),1)
+#max_val=np.round(np.max(val),1)
 min_val=np.min(val)
 max_val=np.max(val)
 ncmap=10
 nstep=int(ncmap/2+1)
 steps=np.linspace(min_val,max_val,nstep)
 cmap = plt.get_cmap('Blues',ncmap)
-plt.scatter(data[:,2], data[:,3], c=val, cmap=cmap, s=10, vmin=min_val, vmax=max_val)
-cb=plt.colorbar(ticks=steps, format='%.0e')
+plt.scatter(data[:,0], data[:,1], c=val, cmap=cmap, s=15, vmin=min_val, vmax=max_val)
+cb=plt.colorbar(ticks=steps)
 cb.ax.tick_params(labelsize=25, width=2, direction='in', length=11)
 cb.update_ticks()
+plt.grid(visible='none')
 #--------------------------------------------------------------------------#
 plt.show()
-#--------------------------------------------------------------------------#
-
-

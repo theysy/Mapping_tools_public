@@ -60,8 +60,8 @@ plt.axis([-r2,r2,-r2,r2])
 plt.axis('off')
 #--------------------------------------------------------------------------#
 # [2] PLOT PI-PLANE
-plt.plot(pi_sig[:,0], pi_sig[:,1], 'k', linewidth=2.5)
-plt.plot(pi_sig[:,2], pi_sig[:,3], 'k--', linewidth=2.5)
+plt.plot(pi_sig[:,0], pi_sig[:,1], 'k--', linewidth=2.5) # ORIGINAL PI-PLANE
+plt.plot(pi_sig[:,2], pi_sig[:,3], 'k', linewidth=2.5)   # CURRENT PI-PLANE
 #--------------------------------------------------------------------------#
 # [3] DATA MAPPING
 val=data[:,data_type]
@@ -71,7 +71,7 @@ ncmap=10
 nstep=int(ncmap/2+1)
 steps=np.linspace(min_val,max_val,nstep)
 cmap = plt.get_cmap('Blues',ncmap)
-plt.scatter(data[:,2], data[:,3], c=val, cmap=cmap, s=15, vmin=min_val, vmax=max_val)
+plt.scatter(data[:,4], data[:,5], c=val, cmap=cmap, s=15, vmin=min_val, vmax=max_val)
 cb=plt.colorbar(ticks=steps, format='%.0e')
 cb.ax.tick_params(labelsize=25, width=2, direction='in', length=11)
 cb.update_ticks()

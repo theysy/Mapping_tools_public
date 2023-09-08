@@ -13,7 +13,7 @@ import sys
 # DATA_TYPE=2: ERROR(1): UNIAXIAL TENSION
 # DATA_TYPE=3: ERROR(2): BALANCED BIAXIAL TENSION
 # DATA_TYPE=4: ERROR(3): PURE SHEAR
-data_type=10
+data_type=4
 #--------------------------------------------------------------------------#
 # SET PLOTTING PARAMETERS #
 # OPEN DATA FILES #
@@ -30,18 +30,27 @@ plt.rc('axes', linewidth=2.0)
 plt.grid(which='major', alpha=0.5)
 plt.axvline(x=0, color='k', linewidth=1.5)
 plt.axhline(y=0, color='k', linewidth=1.5)
-plt.axis([min_indx,max_indx,min_indx,max_indx])
+#plt.axis([min_indx,max_indx,min_indx,max_indx])
 r=1.0
 plt.axis([min_indx*r,max_indx*r,min_indx*r,max_indx*r])
 plt.tick_params(axis='both', direction='in', length=10, width=2, pad=6, labelsize=20)
-plt.locator_params(axis='x', nbins=7)
-plt.locator_params(axis='y', nbins=7)
-plt.xlabel("\u0394\u03B5$_{11}$/\u03B5$_{11y}$", fontsize=20)
-plt.ylabel("\u0394\u03B5$_{22}$/\u03B5$_{22y}$", fontsize=20)
+plt.locator_params(axis='x', nbins=5)
+plt.locator_params(axis='y', nbins=5)
+plt.xlabel("\u0394\u03B5$_{1}$/\u03B5$_{1y}$", fontsize=20)
+plt.ylabel("\u0394\u03B5$_{2}$/\u03B5$_{2y}$", fontsize=20)
+#--------------------------------------------------------------------------#
+radian=np.arctan(1.0)/45
+frame_coord=np.zeros([360,2])
+for i in range(360):
+      frame_coord[i,0]=np.cos(i*radian)*max_indx
+      frame_coord[i,1]=np.sin(i*radian)*max_indx
+plt.plot(frame_coord[:,0],frame_coord[:,1], color='k', linewidth=3)
 #--------------------------------------------------------------------------#
 val=data[:,data_type]
-min_val=np.round(np.min(val),0)
-max_val=np.round(np.max(val),0)
+#min_val=np.round(np.min(val),0)
+#max_val=np.round(np.max(val),0)
+min_val=np.min(val)
+max_val=np.max(val)
 ncmap=10
 nstep=int(ncmap/2+1)
 steps=np.linspace(min_val,max_val,nstep)

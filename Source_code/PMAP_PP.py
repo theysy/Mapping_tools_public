@@ -13,7 +13,7 @@ import sys
 # DATA_TYPE=6: REFERENCE PRECISION PARAMETER
 # DATA_TYPE=7: PRECISION PARAMETER
 # DATA_TYPE=8: RELATIVE ERROR BETWEEN REFERENCE DATA AND GENERATED DATA
-data_type=7
+data_type=6
 #--------------------------------------------------------------------------#
 # SET PLOTTING PARAMETERS #
 print_par=0       # Print the result on csv file. (0: off / 1: on)
@@ -60,8 +60,8 @@ plt.axis([-r2,r2,-r2,r2])
 plt.axis('off')
 #--------------------------------------------------------------------------#
 # [2] PLOT PI-PLANE
-plt.plot(pi_sig[:,0], pi_sig[:,1], 'k', linewidth=2.5)
-plt.plot(pi_sig[:,2], pi_sig[:,3], 'k--', linewidth=2.5)
+plt.plot(pi_sig[:,0], pi_sig[:,1], 'k--', linewidth=2.5) # ORIGINAL PI-PLANE
+plt.plot(pi_sig[:,2], pi_sig[:,3], 'k', linewidth=2.5)   # CURRENT PI-PLANE
 #--------------------------------------------------------------------------#
 # [3] PRECISION MAPPING
 val=data[:,data_type]
@@ -71,7 +71,7 @@ ncmap=10
 nstep=int(ncmap/2+1)
 steps=np.linspace(min_val,max_val,nstep)
 cmap = plt.get_cmap('Blues',ncmap)
-plt.scatter(data[:,2], data[:,3], c=val, cmap=cmap, s=15, vmin=min_val, vmax=max_val)
+plt.scatter(data[:,4], data[:,5], c=val, cmap=cmap, s=15, vmin=min_val, vmax=max_val)
 if data_type==8:
       props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
       textstr='Max: '+str(np.round(np.max(val),1))+'%'

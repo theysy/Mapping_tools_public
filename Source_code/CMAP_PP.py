@@ -22,12 +22,12 @@ cmap_data=np.zeros([ang1*ang2,3])
 cmap_fail=np.zeros([ang1*ang2,3])
 for indx in range(ang1*ang2):
       if data[indx,6] == 200:
-            cmap_fail[indx,0]=data[indx,2];
-            cmap_fail[indx,1]=data[indx,3];
+            cmap_fail[indx,0]=data[indx,4];
+            cmap_fail[indx,1]=data[indx,5];
             cmap_fail[indx,2]=data[indx,6];
       else:
-            cmap_data[indx,0]=data[indx,2];
-            cmap_data[indx,1]=data[indx,3];
+            cmap_data[indx,0]=data[indx,4];
+            cmap_data[indx,1]=data[indx,5];
             cmap_data[indx,2]=data[indx,6];
 #--------------------------------------------------------------------------#
 range1=max(data[:,0])-min(data[:,0])
@@ -69,8 +69,8 @@ plt.axis([-r2,r2,-r2,r2])
 plt.axis('off')
 #--------------------------------------------------------------------------#
 # [2] PLOT PI-PLANE
-plt.plot(pi_sig[:,2], pi_sig[:,3], 'k--', linewidth=2.5)
-plt.plot(pi_sig[:,0], pi_sig[:,1], 'k', linewidth=2.5)
+plt.plot(pi_sig[:,0], pi_sig[:,1], 'k--', linewidth=2.5) # ORIGINAL PI-PLANE
+plt.plot(pi_sig[:,2], pi_sig[:,3], 'k', linewidth=2.5)   # CURRENT PI-PLANE
 #--------------------------------------------------------------------------#
 # [3] CONVERGENCE MAPPING
 val=cmap_data[:,2] # Convergence iteration

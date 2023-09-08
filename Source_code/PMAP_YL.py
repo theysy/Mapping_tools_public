@@ -13,14 +13,14 @@ import sys
 # DATA_TYPE=6: REFERENCE PRECISION PARAMETER
 # DATA_TYPE=7: PRECISION PARAMETER
 # DATA_TYPE=8: RELATIVE ERROR BETWEEN REFERENCE DATA AND GENERATED DATA
-data_type=8
+data_type=7
 #--------------------------------------------------------------------------#
 # OPEN DATA FILES #
 yl_sig=np.loadtxt('OUT\yld_locus.csv', delimiter=',', dtype=np.float64)
 data = np.loadtxt('OUT\PMAP.csv', delimiter=',', dtype=np.float64)
 range1=max(data[:,0])-min(data[:,0])
 range2=max(data[:,1])-min(data[:,1])
-interval1=data[int(range2+1),0]-data[0,0]
+interval1=data[int(range2),0]-data[0,0]
 interval2=data[1,1]-data[0,1]
 print(interval1,interval2)
 ndata=(interval1*range1+1)*(interval1*range2+1)
@@ -45,18 +45,22 @@ plt.axhline(y=0, color='k', linewidth=2.0)
 plt.tick_params(axis='both', direction='in', length=5, pad=6, labelsize=20)
 #--------------------------------------------------------------------------#
 # Yield locus
-plt.plot(yl_sig[:,0], yl_sig[:,1], 'k', linewidth=2.5)
-plt.plot(yl_sig[:,2], yl_sig[:,3], 'k--', linewidth=2.5)
+plt.plot(yl_sig[:,0], yl_sig[:,1], 'k--', linewidth=2.5)# ORIGINAL YIELD LOCUS
+plt.plot(yl_sig[:,2], yl_sig[:,3], 'k', linewidth=2.5)  # CURRENT YIELD LOCUS
 #--------------------------------------------------------------------------#
 # PRECISION MAPPING
 val=data[:,data_type]
 min_val=np.round(np.min(val),1)
 max_val=np.round(np.max(val),1)
+#if data_type<=7:
+#      min_val=1.2
+#      max_val=1.3
+
 ncmap=10
 nstep=int(ncmap/2+1)
 steps=np.linspace(min_val,max_val,nstep)
 cmap = plt.get_cmap('Blues',ncmap)
-plt.scatter(data[:,4], data[:,5], c=val, cmap=cmap, s=10, vmin=min_val, vmax=max_val)
+plt.scatter(data[:,2], data[:,3], c=val, cmap=cmap, s=10, vmin=min_val, vmax=max_val)
 if data_type==8:
       props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
       textstr='Max: '+str(np.round(np.max(val),1))+'%'

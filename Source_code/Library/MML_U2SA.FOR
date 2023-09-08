@@ -29,14 +29,12 @@ C             -DIRECT METHOD IS UPDATED (20210623)                            C
 C             -HEXAH MODEL IS UPDATED (20220101)                              C
 C                                                                             C
 C     REFERENCES                                                              C
-C         [1] F.BARLAT  ET AL. IJP     (2003): YLD2000-2D                     C
-C         [2] F.BARLAT  ET AL. IJP     (2012): HAH11                          C
-C         [3] F.BARLAT  ET AL. IJP     (2014): HAH14                          C
-C         [4] J.W. LEE  ET AL. IJP     (2012): CUTTING PLANE METHOD           C
-C         [5] J.W. LEE  ET AL. CMAM    (2012): CLOSEST POINT PROJECTION       C
-C         [6] J.W. YOON ET AL. IJP     (2004): MULTI-STAGE EULER BACKWARD     C
-C                                            : THE ANALYTICAL DERIVATIVE OF   C
-C                                              YLD2000_2D MODEL               C
+C         [1] F.BARLAT  ET AL. IJP      (2003): YLD2000-2D                    C
+C         [2] F.BARLAT  ET AL. IJP      (2012): HAH11                         C
+C         [3] F.BARLAT  ET AL. IJP      (2014): HAH14                         C
+C         [4] J.W. LEE  ET AL. IJP      (2012): CUTTING PLANE METHOD          C
+C         [5] J.W. LEE  ET AL. CMAM     (2012): CLOSEST POINT PROJECTION      C
+C         [6] J.W. YOON ET AL. IJP      (2004): MULTI-STAGE EULER BACKWARD    C
 C         [7] F. BARLAT ET AL.  IJP     (2005): YLD2004_18P                   C
 C         [8] H. ARETZ          ESAFORM (2007): SCALED FDM                    C
 C         [9] T.J. PARK ET AT.  IJSS    (2012): CHABOCHE1-SIMPLER MODEL       C
@@ -50,7 +48,8 @@ C         [16]K. KITAYAMA ET AL.IJP     (2013): CRYSTALLOGRAPHIC RGBV         C
 C         [17]S.Y. YOON ET AL.  CMAME   (2020): LINE-SEARCH FOR HARDENING     C
 C         [18]C.G. BROYDEN      MOC     (1965): BROYDEN METHOD                C
 C         [19]B. REYNE ET AL.   IJP     (2022): HEXAH (HAH22)                 C
-C         [20]S. YOON ET AL.    IJMS    (2023): NSPM                          C
+C         [20]S. YOON ET AL.    IJMS    (2023a): NSPM                         C
+C         [21]S. YOON ET AL.    MOM     (2023b): NSPM                         C
 C                                                                             C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C
@@ -527,6 +526,9 @@ C     #   WHEN EPLAS=0, THE STATE VARIABLES WOULD BE INITIALIZED
 C-----------------------------------------------------------------------
 C     1.6.    YIELD CONDITION
 C
+C     [0]     FLAG
+      CALL DOUBLE_DOT(DSTRAN,DSTRAN,NDIM3,FLAG)
+C
 C     [1]     RELATIVE STRESS=STRESS-BACKSTRESS
       IF(HARD_PAR.EQ.1.D0 .OR. HARD_PAR.EQ.2.D0) THEN
           DO I=1, NDIM3
@@ -541,7 +543,7 @@ C
 C     [1]     PLASTIC CORRECTOR
       ITER=0
       STATE=0.D0
-      IF(FVAL .GE. 1.D-5) THEN
+      IF(FLAG.NE.0.D0 .AND. FVAL.GE.1.D-5) THEN
           STATE=1.D0
           IF(SUA_PAR .GE. 0.D0) THEN  ! ITERATIVE STRESS UPDATE METHOD
             CALL UPDATE_SIG(STAT_VAR,EPLAS,STRESS,DDSDDE,ITER)
@@ -554,7 +556,7 @@ C     [2]     EFFFECTIVE STRESS
       CALL EFF_SIG(STAT_VAR, STRESS, SIG_BAR)
       CALL FLOW_STRESS(STAT_VAR, EPLAS, FLOW_SIG, DHDE)
 C     [3]     GRADIENT OF YIELD SURFACE
-      CALL GRAD(2,1,STAT_VAR,STRESS,DFDS,DDFDDS)
+      CALL GRAD(1,1,STAT_VAR,STRESS,DFDS,DDFDDS)
 C     [4]     STRESS=STRESS+BACKSTRESS
       IF(HARD_PAR.EQ.1.D0 .OR. HARD_PAR.EQ.2.D0) THEN
           DO I=1, NDIM3
@@ -607,7 +609,7 @@ C       THE INDIRECT METHOD.
       COMMON /KITER/ MAX_ITER
 
 C     [1] MAXIMUM ITERATION
-      MAX_ITER=200
+      MAX_ITER=100
 C     [2] SELECTION OF STRESS UPDATE ALGORITHM
       IF(FLOOR(SUA_PAR) .EQ. 1.D0) THEN
           CALL CPM(STAT_VAR,EPLAS,SIG,CE,ITER)
@@ -1377,6 +1379,7 @@ C     [1]     STRESS
       SIG0=SIG
 C     [2]     DOUBLE_SIG
       CALL DOUBLE_DOT(SIG, SIG, NDIM3, XSIG)
+      CALL FLOW_STRESS(STAT_VAR, EPLAS, FLOW_SIG, DHDE)
       IF(XSIG.EQ.0.D0) SIG=SIG0+MATMUL(CE,DSTRAN)
 C-----------------------------------------------------------------------
 C     2.1     ELASTOPLASTIC TANGENT MODULUS
